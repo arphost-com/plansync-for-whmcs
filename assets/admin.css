@@ -1,0 +1,110 @@
+/* PlanSync for WHMCS: admin screen. */
+
+.plansync-admin {
+    --plansync-brand: #0e7490;
+    --plansync-brand-light: #22d3ee;
+    max-width: 1400px;
+}
+
+.plansync-admin__brand {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin: 1rem 0 1.25rem;
+    padding: 1.1rem 1.4rem;
+    border-radius: 12px;
+    border-left: 5px solid var(--plansync-brand-light);
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.plansync-admin__logo img {
+    display: block;
+    width: 175px;
+    height: auto;
+}
+
+.plansync-admin__brand h1 {
+    margin: 0;
+    padding: 0;
+    font-size: 1.5rem;
+}
+
+.plansync-admin__brand p {
+    margin: 0.25rem 0 0;
+    color: #50575e;
+}
+
+.plansync-admin__card {
+    margin: 0 0 1.25rem;
+    padding: 1rem 1.4rem;
+    border: 1px solid #dcdcde;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.plansync-admin__card h2 {
+    margin-top: 0.4rem;
+}
+
+.plansync-admin__add {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.plansync-admin__group-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.plansync-admin__group-title input {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.plansync-admin__table-wrap {
+    overflow-x: auto;
+}
+
+.plansync-admin__table-wrap textarea,
+.plansync-admin__table-wrap input[type="text"] {
+    width: 100%;
+    min-width: 9rem;
+}
+
+.plansync-admin__error {
+    color: #b32d2e;
+}
+
+.plansync-admin__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.plansync-admin .button-primary {
+    border-color: var(--plansync-brand);
+    background: var(--plansync-brand);
+}
+
+.plansync-admin .button-primary:hover,
+.plansync-admin .button-primary:focus {
+    border-color: #155e75;
+    background: #155e75;
+}
+
+.plansync-admin__footer {
+    margin: 2rem 0 1rem;
+    color: #50575e;
+}
+
+.plansync-admin__footer a {
+    color: var(--plansync-brand);
+    font-weight: 600;
+}

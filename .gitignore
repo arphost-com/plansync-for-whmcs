@@ -1,0 +1,6 @@
+*.zip
+.ci-tmp/
+.trivy-cache/
+trivy-repo-report.json
+public-export/
+.DS_Store

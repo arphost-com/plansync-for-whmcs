@@ -1,0 +1,306 @@
+/* PlanSync. Uses the theme's colour tokens when they exist and
+   falls back to its light-theme values. */
+
+.plansync {
+    --awp-card: var(--bg-card, #ffffff);
+    --awp-text: var(--text-primary, #0f172a);
+    --awp-muted: var(--text-secondary, #475569);
+    --awp-border: var(--border-color, #e2e8f0);
+    --awp-brand: #0e7490;
+    --awp-brand-hover: #155e75;
+    --awp-tab-active-text: #ffffff;
+    --awp-out-bg: #fef2f2;
+    --awp-out-text: #b91c1c;
+    --awp-low-bg: #fffbeb;
+    --awp-low-text: #92400e;
+    margin: 1.5rem 0;
+}
+
+[data-theme="dark"] .plansync {
+    --awp-out-bg: rgba(248, 113, 113, 0.12);
+    --awp-out-text: #fca5a5;
+    --awp-low-bg: rgba(251, 191, 36, 0.12);
+    --awp-low-text: #fcd34d;
+}
+
+.plansync__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 0 0 1.5rem;
+}
+
+.plansync__tabs[hidden] {
+    display: none;
+}
+
+.plansync .plansync__tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 44px;
+    padding: 0.55rem 1rem;
+    border: 1px solid var(--awp-border);
+    border-radius: 999px;
+    background: var(--awp-card);
+    color: var(--awp-text);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.plansync .plansync__tab:hover {
+    border-color: var(--awp-brand);
+}
+
+.plansync .plansync__tab:focus-visible {
+    outline: 3px solid var(--awp-brand);
+    outline-offset: 2px;
+}
+
+.plansync .plansync__tab[aria-selected="true"] {
+    border-color: var(--awp-brand);
+    background: var(--awp-brand);
+    color: var(--awp-tab-active-text);
+}
+
+.plansync__count {
+    display: inline-block;
+    min-width: 1.6em;
+    padding: 0 0.4em;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.25);
+    font-size: 0.8em;
+    text-align: center;
+}
+
+.plansync.is-enhanced .plansync__panel[hidden] {
+    display: none;
+}
+
+.plansync.is-enhanced .plansync__category {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+
+.plansync__panel + .plansync__panel {
+    margin-top: 2rem;
+}
+
+.plansync.is-enhanced .plansync__panel + .plansync__panel {
+    margin-top: 0;
+}
+
+.plansync__category {
+    margin: 0 0 1rem;
+    text-align: center;
+}
+
+.plansync__grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.25rem;
+}
+
+.plansync__grid > .plansync-plan {
+    flex: 0 1 calc((100% - 2.5rem) / 3);
+    min-width: 0;
+}
+
+@media (max-width: 900px) {
+    .plansync__grid > .plansync-plan {
+        flex-basis: calc((100% - 1.25rem) / 2);
+    }
+}
+
+@media (max-width: 560px) {
+    .plansync__grid > .plansync-plan {
+        flex-basis: 100%;
+    }
+}
+
+.plansync .plansync-plan {
+    position: relative;
+    display: flex;
+    margin: 0;
+    padding: 1.5rem;
+    border: 1px solid var(--awp-border);
+    border-radius: 16px;
+    background: var(--awp-card);
+    color: var(--awp-text);
+}
+
+.plansync .plansync-plan > .wp-block-group__inner-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.plansync .plansync-plan.is-featured {
+    border: 2px solid var(--awp-brand);
+}
+
+.plansync .plansync-plan__badge:not(#plansync-x) {
+    align-self: center;
+    margin: 0 0 0.75rem;
+    padding: 0.2rem 0.7rem;
+    border-radius: 999px;
+    background: var(--awp-brand);
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.plansync .plansync-plan__name {
+    margin: 0 0 0.5rem;
+    color: var(--awp-text);
+    font-size: 1.2rem;
+    line-height: 1.3;
+}
+
+.plansync-plan__price {
+    margin: 0 0 0.75rem;
+    color: var(--awp-muted);
+}
+
+.plansync-plan__price strong {
+    color: var(--awp-text);
+    font-size: 1.75rem;
+    font-weight: 800;
+}
+
+.plansync-plan__from {
+    display: block;
+    font-size: 0.85rem;
+}
+
+.plansync-plan__description {
+    margin: 0 0 0.75rem;
+    color: var(--awp-muted);
+    font-size: 0.95rem;
+}
+
+.plansync .plansync-plan__specs {
+    margin: 0 0 1rem;
+    padding: 0;
+    list-style: none;
+    color: var(--awp-muted);
+}
+
+.plansync .plansync-plan__specs li {
+    position: relative;
+    text-align: left;
+    margin: 0 0 0.4rem;
+    padding-left: 1.4rem;
+}
+
+.plansync .plansync-plan__specs li::before {
+    position: absolute;
+    left: 0;
+    color: var(--awp-brand);
+    font-weight: 800;
+    content: "\2713";
+}
+
+[data-theme="dark"] .plansync .plansync-plan__specs li::before {
+    color: #22d3ee;
+}
+
+.plansync-plan__stock {
+    align-self: center;
+    margin: 0 0 0.75rem;
+    padding: 0.2rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.plansync .plansync-plan__stock.is-out:not(#plansync-x) {
+    background: var(--awp-out-bg);
+    color: var(--awp-out-text) !important;
+    -webkit-text-fill-color: var(--awp-out-text) !important;
+}
+
+.plansync .plansync-plan__stock.is-low:not(#plansync-x) {
+    background: var(--awp-low-bg);
+    color: var(--awp-low-text) !important;
+    -webkit-text-fill-color: var(--awp-low-text) !important;
+}
+
+.plansync .plansync-plan__actions {
+    margin-top: auto;
+}
+
+.plansync .plansync-plan__actions .wp-block-button {
+    width: 100%;
+}
+
+/* Theme and Additional CSS rules force link colours with !important; the
+   ID-weight :not() keeps these buttons readable in both themes. */
+.plansync .plansync-plan__actions .wp-block-button__link:not(#plansync-x) {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    min-height: 46px;
+    align-items: center;
+    background: var(--awp-brand) !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    border: 0 !important;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.plansync .plansync-plan__actions a.wp-block-button__link:not(#plansync-x):is(:hover, :focus-visible) {
+    background: var(--awp-brand-hover) !important;
+}
+
+.plansync .plansync-plan__actions .is-disabled .wp-block-button__link:not(#plansync-x) {
+    background: #64748b !important;
+    cursor: not-allowed;
+}
+
+.plansync .plansync-plan.is-out-of-stock:not(#plansync-x) {
+    border-style: dashed !important;
+}
+
+.plansync-plan__notify {
+    margin: 0.6rem 0 0;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.plansync .plansync-plan__notify a:not(#plansync-x) {
+    color: #0e7490 !important;
+    -webkit-text-fill-color: #0e7490 !important;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+[data-theme="dark"] .plansync .plansync-plan__notify a:not(#plansync-x) {
+    color: #67e8f9 !important;
+    -webkit-text-fill-color: #67e8f9 !important;
+}
+
+.plansync-notice {
+    padding: 1rem;
+    border: 1px dashed #94a3b8;
+    border-radius: 8px;
+    color: #475569;
+    text-align: center;
+}
+
+.plansync__panel:focus-visible {
+    outline: 3px solid var(--awp-brand);
+    outline-offset: 4px;
+    border-radius: 8px;
+}
