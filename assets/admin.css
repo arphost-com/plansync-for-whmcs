@@ -108,3 +108,18 @@
     color: var(--plansync-brand);
     font-weight: 600;
 }
+
+.plansync-admin__promo {
+    border-left: 5px solid var(--plansync-brand);
+}
+
+.plansync-admin__promo h2 {
+    margin-top: 0.25rem;
+}
+
+.plansync-admin__promo p {
+    max-width: 760px;
+}
+
+.plansync-admin__affiliate { margin-top: 0.6rem; }
+.plansync-admin__affiliate[hidden] { display: none; }

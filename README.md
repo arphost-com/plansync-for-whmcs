@@ -19,6 +19,24 @@ Most WHMCS pricing widgets load plans in the browser with JavaScript, so search 
 - Cached and refreshed on a schedule, and page caches are cleared when prices or stock change; the last good copy is kept when WHMCS is down, and hidden once it is older than the maximum age you set.
 - Gutenberg block, shortcodes and WP-CLI.
 
+## Order buttons and site order pages
+
+By default each plan button links to the WHMCS cart. Another plugin can send those buttons to an order page on your own site with the `plansync_order_url` filter. It receives the WHMCS order URL and the plan, and returns the URL to use. The same URL goes in the Product structured data.
+
+```php
+add_filter('plansync_order_url', function (string $url, array $plan): string {
+    return $plan['pid'] === 42 ? home_url('/order/?plan=42') : $url;
+}, 10, 2);
+```
+
+The **Order buttons** checkbox on the settings screen turns this on and off. While it is ticked the filter is applied. Untick it to send every button straight to the WHMCS cart without turning the other plugin off. The settings screen notes when a plugin is using the filter.
+
+CartBridge for WHMCS, by ARPHost, uses this filter to take customers through the whole VPS order on the WordPress site. The settings screen has a short description and a contact link while CartBridge is not installed.
+
+## ARPFerral affiliate links
+
+ARPFerral is the ARPHost affiliate program. Affiliates can use PlanSync on their own site to show ARPHost plans and get credit for the orders. Tick **Add my ARPFerral affiliate code to order links** on the settings screen and enter your affiliate code, 4 to 20 letters and numbers, from the Affiliates page in your ARPHost client area. Order buttons and structured data links that go to the WHMCS site, or to an order page on your own site such as CartBridge, then get `?ref=` with your code. Links to any other site are left alone, and a link that already has a `ref` keeps it. The code box only shows while the option is on. If the code is missing or not valid when you save, your other settings are still saved and the affiliate setting stays as it was.
+
 ## Install
 
 1. Download the latest release zip and upload it under Plugins → Add New → Upload, or copy the `plansync-for-whmcs` folder to `wp-content/plugins/`.

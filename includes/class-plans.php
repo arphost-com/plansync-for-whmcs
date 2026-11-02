@@ -41,6 +41,9 @@ final class Plans
             'brand'         => '',
             'currency'      => '',
             'schema'        => true,
+            'site_orders'   => true,
+            'affiliate'     => false,
+            'affiliate_code' => '',
             'groups'        => array(),
             'plans'         => array(),
         );
@@ -100,10 +103,41 @@ final class Plans
         $settings['max_age_hours'] = max(0, min(8760, (int) $settings['max_age_hours']));
         $settings['groups'] = is_array($settings['groups']) ? $settings['groups'] : array();
         $settings['plans'] = is_array($settings['plans']) ? $settings['plans'] : array();
+        $settings['affiliate'] = !empty($settings['affiliate']);
+        $settings['affiliate_code'] = self::affiliate_code((string) $settings['affiliate_code']);
         if ('' === trim((string) $settings['brand'])) {
             $settings['brand'] = function_exists('get_bloginfo') ? (string) get_bloginfo('name') : '';
         }
         return $settings;
+    }
+
+    /**
+     * An ARPFerral affiliate code is 4 to 20 letters and numbers. Anything else is dropped.
+     */
+    public static function affiliate_code(string $code): string
+    {
+        $code = strtoupper(trim($code));
+        return preg_match('/^[A-Z0-9]{4,20}$/D', $code) ? $code : '';
+    }
+
+    /**
+     * Applies the affiliate fields from the settings form. A missing or bad
+     * code leaves the affiliate option and code as they were and returns false,
+     * so the rest of the form can still be saved.
+     */
+    public static function affiliate_from_post(array &$settings, array $post): bool
+    {
+        $want = !empty($post['affiliate']);
+        $typed = trim((string) ($post['affiliate_code'] ?? ''));
+        $code = self::affiliate_code($typed);
+        if (('' !== $typed && '' === $code) || ($want && '' === $code)) {
+            return false;
+        }
+        $settings['affiliate'] = $want;
+        if ('' !== $code) {
+            $settings['affiliate_code'] = $code;
+        }
+        return true;
     }
 
     public static function save_settings(array $settings): void

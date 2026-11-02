@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.3.0
+
+- Optional ARPFerral affiliate links. Turn on "Add my ARPFerral affiliate code to order links" and enter your code, and order buttons and structured data links that go to the WHMCS site, or to an order page on your own site such as CartBridge, get ?ref= with your code. The code box only shows while the option is on. Links to other sites are left alone. A missing or bad code does not stop the rest of the settings from saving.
+
+## 1.2.2
+
+- The settings screen describes CartBridge for WHMCS, the companion order form plugin, with a link to ask ARPHost about it. It only shows while CartBridge is not installed.
+
+## 1.2.1
+
+- New "Order buttons" checkbox (on by default). While it is ticked, the new `plansync_order_url` filter can send plan buttons to an order page on the site, such as CartBridge for WHMCS. Untick it to keep the WHMCS cart links.
+- The `plansync_order_url` filter It receives the WHMCS order link and the plan (including its WHMCS product id as `pid`), and its result is used for the order button and the structured data offer link.
+
 ## 1.1.0
 
 First public release, as PlanSync for WHMCS (slug plansync-for-whmcs).

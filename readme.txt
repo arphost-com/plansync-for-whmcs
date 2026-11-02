@@ -4,7 +4,7 @@ Tags: whmcs, pricing table, hosting, plans, seo
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 1.1.0
+Stable tag: 1.3.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -47,6 +47,15 @@ Groups hidden from the store menu are not listed. Type the slug from the group l
 The last good copy is kept and shown. If WHMCS cannot be reached for longer than the maximum age you set, the plans are hidden so visitors never see stale prices.
 
 == Changelog ==
+
+= 1.3.0 =
+* Optional ARPFerral affiliate links. Turn on "Add my ARPFerral affiliate code to order links" and enter your code, and order buttons and structured data links that go to the WHMCS site, or to an order page on your own site such as CartBridge, get ?ref= with your code. The code box only shows while the option is on. Links to other sites are left alone. A missing or bad code does not stop the rest of the settings from saving.
+
+= 1.2.2 =
+* The settings screen describes CartBridge for WHMCS, the companion order form plugin, with a link to ask ARPHost about it. It only shows while CartBridge is not installed.
+
+= 1.2.1 =
+* New Order buttons setting and plansync_order_url filter, so plan buttons and the structured data offer link can go to an order page on your own site such as CartBridge for WHMCS. Untick it to keep sending customers to the WHMCS cart.
 
 = 1.1.0 =
 * First public release.

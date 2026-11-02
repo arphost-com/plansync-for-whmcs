@@ -216,6 +216,48 @@ check('Example Hosting' === ($ld['itemListElement'][0]['item']['brand']['name'] 
 $second = Renderer::render(array('group' => 'cloud-servers'));
 check(false !== strpos($second, 'id="plansync-cloud-servers-2"') && false !== strpos($second, 'id="plansync-cloud-servers-2-pro"'), 'a second block for the same group gets unique ids');
 
+$GLOBALS['wp_filters']['plansync_order_url'] = 'https://shop.example.com/order/?plan=100';
+$filtered = Renderer::render(array('group' => 'vps'));
+check(false !== strpos($filtered, 'href="https://shop.example.com/order/?plan=100"') && false === strpos($filtered, 'billing.example.com/client/store/vps/'), 'plansync_order_url filter changes the order button and offer link');
+$saved = get_option(Plans::SETTINGS_OPTION);
+update_option(Plans::SETTINGS_OPTION, array_merge($saved, array('site_orders' => false)));
+check(false === strpos(Renderer::render(array('group' => 'vps')), 'shop.example.com/order'), 'unticking Order buttons keeps the WHMCS links');
+update_option(Plans::SETTINGS_OPTION, $saved);
+unset($GLOBALS['wp_filters']['plansync_order_url']);
+
+// ARPFerral affiliate code on order links.
+check('ABC123' === Plans::affiliate_code(' abc123 ') && '' === Plans::affiliate_code('ab') && '' === Plans::affiliate_code('abc 123') && '' === Plans::affiliate_code(str_repeat('A', 21)), 'affiliate codes are 4 to 20 letters and numbers');
+$saved = get_option(Plans::SETTINGS_OPTION);
+check(!preg_match('/[?&]ref=/', Renderer::render(array('group' => 'vps'))), 'no affiliate code by default');
+update_option(Plans::SETTINGS_OPTION, array_merge($saved, array('affiliate' => false, 'affiliate_code' => 'ABC123')));
+check(false === strpos(Renderer::render(array('group' => 'vps')), 'ref=ABC123'), 'a saved code is not used while affiliate links are off');
+update_option(Plans::SETTINGS_OPTION, array_merge($saved, array('affiliate' => true, 'affiliate_code' => 'abc123')));
+$aff = Renderer::render(array('group' => 'vps'));
+check(false !== strpos($aff, 'href="https://billing.example.com/client/store/vps/0?ref=ABC123"'), 'order buttons carry the affiliate code');
+check(1 === preg_match('#"url":\s*"https:\\\\?/\\\\?/billing\.example\.com\\\\?/client\\\\?/store\\\\?/vps\\\\?/0\?ref=ABC123"#', $aff), 'the offer link carries the affiliate code');
+$aff_settings = Plans::settings();
+check('https://billing.example.com/cart.php?a=add&pid=5&ref=ABC123#top' === Renderer::with_affiliate('https://billing.example.com/cart.php?a=add&pid=5#top', $aff_settings), 'existing query and anchor are kept');
+check('https://shop.example.com/order/?plan=5' === Renderer::with_affiliate('https://shop.example.com/order/?plan=5', $aff_settings), 'links to other sites are left alone');
+check('https://billing.example.com/x?ref=OTHER' === Renderer::with_affiliate('https://billing.example.com/x?ref=OTHER', $aff_settings), 'an existing ref is not doubled');
+check('https://www.example.com/order/?plan=5&ref=ABC123' === Renderer::with_affiliate('https://www.example.com/order/?plan=5', $aff_settings), 'order pages on this site such as CartBridge carry the code');
+$GLOBALS['wp_filters']['plansync_order_url'] = 'https://www.example.com/order/?plan=682';
+check(false !== strpos(Renderer::render(array('group' => 'vps')), 'href="https://www.example.com/order/?plan=682&amp;ref=ABC123"'), 'order buttons sent to a CartBridge page keep the code');
+unset($GLOBALS['wp_filters']['plansync_order_url']);
+
+// Saving the affiliate fields.
+$s = array('affiliate' => false, 'affiliate_code' => '');
+check(Plans::affiliate_from_post($s, array('affiliate' => '1', 'affiliate_code' => 'abc123')) && $s['affiliate'] && 'ABC123' === $s['affiliate_code'], 'a good code turns affiliate links on');
+$s = array('affiliate' => false, 'affiliate_code' => '');
+check(!Plans::affiliate_from_post($s, array('affiliate' => '1', 'affiliate_code' => '')) && !$s['affiliate'], 'turning links on without a code is refused and leaves them off');
+$s = array('affiliate' => true, 'affiliate_code' => 'GOOD1');
+check(!Plans::affiliate_from_post($s, array('affiliate' => '1', 'affiliate_code' => 'bad code!')) && $s['affiliate'] && 'GOOD1' === $s['affiliate_code'], 'a bad code keeps the saved code and setting');
+$s = array('affiliate' => true, 'affiliate_code' => 'GOOD1');
+check(!Plans::affiliate_from_post($s, array('affiliate_code' => 'x!')) && $s['affiliate'] && 'GOOD1' === $s['affiliate_code'], 'a bad code while turning links off does not wipe the saved code');
+$s = array('affiliate' => true, 'affiliate_code' => 'GOOD1');
+check(Plans::affiliate_from_post($s, array('affiliate_code' => 'GOOD1')) && !$s['affiliate'] && 'GOOD1' === $s['affiliate_code'], 'turning links off keeps the code for later');
+update_option(Plans::SETTINGS_OPTION, array_merge($saved, array('affiliate' => true, 'affiliate_code' => 'no spaces!')));
+check(!preg_match('/[?&]ref=/', Renderer::render(array('group' => 'vps'))), 'a bad saved code is ignored');
+update_option(Plans::SETTINGS_OPTION, $saved);
 $tabs = Renderer::render(array('group' => 'vps', 'className' => 'is-style-dark my-extra'));
 check(2 === substr_count($tabs, 'role="tab"') && 2 === substr_count($tabs, 'tabindex="0"'), 'tabs per category with focusable panels');
 check(false !== strpos($tabs, 'class="plansync is-tabs is-style-dark my-extra"'), 'custom classes are kept separate');

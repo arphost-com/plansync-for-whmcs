@@ -3,7 +3,7 @@
  * Plugin Name:       PlanSync for WHMCS
  * Plugin URI:        https://arphost.com/
  * Description:       Show WHMCS product groups as fast, SEO-friendly plan cards with live prices and stock. Built and maintained by ARPHost.
- * Version:           1.1.0
+ * Version:           1.3.0
  * Requires at least: 6.0
  * Requires PHP:      8.0
  * Author:            ARPHost
@@ -22,10 +22,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('PLANSYNC_VERSION', '1.1.0');
+define('PLANSYNC_VERSION', '1.3.0');
 define('PLANSYNC_FILE', __FILE__);
 define('PLANSYNC_DIR', plugin_dir_path(__FILE__));
 define('PLANSYNC_URI', plugin_dir_url(__FILE__));
+define('PLANSYNC_CARTBRIDGE_URL', 'https://arphost.com/contact/?utm_source=plansync&utm_medium=plugin&utm_campaign=cartbridge');
 define('PLANSYNC_BRAND_URL', 'https://arphost.com/?utm_source=plansync&utm_medium=plugin&utm_campaign=wp-admin');
 
 require_once PLANSYNC_DIR . 'includes/class-store-parser.php';

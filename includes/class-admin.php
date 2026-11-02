@@ -99,8 +99,13 @@ final class Admin
                 $currency = strtoupper(sanitize_text_field((string) ($post['currency'] ?? '')));
                 $settings['currency'] = preg_match('/^[A-Z]{3}$/', $currency) ? $currency : '';
                 $settings['schema'] = !empty($post['schema']);
+                $settings['site_orders'] = !empty($post['site_orders']);
+                $notice = 'saved';
+                if (!Plans::affiliate_from_post($settings, $post)) {
+                    $notice = 'bad_affiliate';
+                }
                 Plans::save_settings($settings);
-                self::redirect('saved');
+                self::redirect($notice);
                 break;
 
             case 'add_group':
@@ -225,6 +230,7 @@ final class Admin
             'add_failed'      => array('warning', __('The group was added, but importing it failed. See the error below.', 'plansync-for-whmcs')),
             'removed'         => array('success', __('Product group removed.', 'plansync-for-whmcs')),
             'bad_group'       => array('error', __('Enter a store group slug such as "web-hosting", a store URL, or a numeric group id.', 'plansync-for-whmcs')),
+            'bad_affiliate'   => array('error', __('Your other settings were saved, but the ARPFerral affiliate setting was left as it was. Enter your affiliate code, 4 to 20 letters and numbers, or turn affiliate links off.', 'plansync-for-whmcs')),
             'bad_ip'          => array('error', __('"Connect to IP" must be a valid IPv4 or IPv6 address, or empty.', 'plansync-for-whmcs')),
         );
         $url_locked = Plans::url_locked();
@@ -281,6 +287,39 @@ final class Admin
                         <th scope="row"><label for="wp-contact"><?php esc_html_e('Out of stock link', 'plansync-for-whmcs'); ?></label></th>
                         <td><input id="wp-contact" name="contact_url" type="text" class="regular-text" value="<?php echo esc_attr($settings['contact_url']); ?>" placeholder="/contact/">
                             <p class="description"><?php esc_html_e('Shown as "Ask about availability" under out of stock plans. Leave empty to hide it.', 'plansync-for-whmcs'); ?></p></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><?php esc_html_e('Order buttons', 'plansync-for-whmcs'); ?></th>
+                        <td>
+                            <label><input type="checkbox" name="site_orders" value="1" <?php checked(!empty($settings['site_orders'])); ?>> <?php esc_html_e('Send order buttons to an order page on this site when one is available', 'plansync-for-whmcs'); ?></label>
+                            <p class="description"><?php
+                            if (has_filter('plansync_order_url')) {
+                                esc_html_e('An order page plugin such as CartBridge for WHMCS is active. Turn this off to send customers straight to the WHMCS cart.', 'plansync-for-whmcs');
+                            } else {
+                                esc_html_e('No order page plugin is active, so order buttons go to the WHMCS cart.', 'plansync-for-whmcs');
+                            }
+                            ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><?php esc_html_e('ARPFerral affiliate', 'plansync-for-whmcs'); ?></th>
+                        <td>
+                            <label><input type="checkbox" name="affiliate" value="1" id="plansync-affiliate" <?php checked(!empty($settings['affiliate'])); ?>> <?php esc_html_e('Add my ARPFerral affiliate code to order links', 'plansync-for-whmcs'); ?></label>
+                            <div id="plansync-affiliate-settings" class="plansync-admin__affiliate"<?php echo empty($settings['affiliate']) ? ' hidden' : ''; ?>>
+                                <label for="wp-aff"><?php esc_html_e('Affiliate code', 'plansync-for-whmcs'); ?></label>
+                                <input id="wp-aff" name="affiliate_code" type="text" class="regular-text code" maxlength="20" pattern="[A-Za-z0-9]{4,20}" autocomplete="off" spellcheck="false" value="<?php echo esc_attr((string) $settings['affiliate_code']); ?>">
+                                <p class="description"><?php esc_html_e('ARPFerral is the ARPHost affiliate program. Your code is on the Affiliates page in your ARPHost client area. Order buttons that go to WHMCS, or to an order page on this site such as CartBridge, get ?ref= and your code, so orders placed through them are credited to you.', 'plansync-for-whmcs'); ?></p>
+                            </div>
+                            <script>
+                            (function () {
+                                var box = document.getElementById('plansync-affiliate');
+                                var settings = document.getElementById('plansync-affiliate-settings');
+                                if (box && settings) {
+                                    box.addEventListener('change', function () { settings.hidden = !box.checked; });
+                                }
+                            }());
+                            </script>
+                        </td>
                     </tr>
                     <tr>
                         <th scope="row"><?php esc_html_e('Structured data', 'plansync-for-whmcs'); ?></th>
@@ -416,6 +455,14 @@ final class Admin
                     </form>
                 </div>
             <?php endforeach; ?>
+
+            <?php if (!class_exists('\\Arphost\\CartBridge\\Catalog')) : ?>
+                <div class="plansync-admin__card plansync-admin__promo">
+                    <h2><?php esc_html_e('Let customers order right on your site with CartBridge', 'plansync-for-whmcs'); ?></h2>
+                    <p><?php esc_html_e('CartBridge for WHMCS is our companion plugin. It turns these plan cards into a full order form on your WordPress site: customers pick the plan, operating system, extras, hostname and billing cycle with a live total, create or sign in to their WHMCS account, and land on their invoice ready to pay. WHMCS still runs your fraud checks, billing and provisioning.', 'plansync-for-whmcs'); ?></p>
+                    <p><a class="button button-primary" href="<?php echo esc_url(PLANSYNC_CARTBRIDGE_URL); ?>" target="_blank" rel="noopener"><?php esc_html_e('Ask ARPHost about CartBridge', 'plansync-for-whmcs'); ?></a></p>
+                </div>
+            <?php endif; ?>
 
             <footer class="plansync-admin__footer">
                 <?php echo wp_kses(sprintf(

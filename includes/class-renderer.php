@@ -217,9 +217,10 @@ final class Renderer
             $html .= '<p class="plansync-plan__stock is-low">' . esc_html(sprintf(_n('%d available', '%d available', (int) $plan['stock'], 'plansync-for-whmcs'), (int) $plan['stock'])) . '</p>';
         }
 
+        $order_url = self::order_url($plan);
         $html .= '<div class="wp-block-buttons plansync-plan__actions">';
-        if ($in_stock && '' !== (string) $plan['order_url']) {
-            $html .= '<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="' . esc_url($plan['order_url']) . '" aria-label="' . esc_attr(sprintf('%s %s', $a['buttonLabel'], $plan['title'])) . '">' . esc_html($a['buttonLabel']) . '</a></div>';
+        if ($in_stock && '' !== $order_url) {
+            $html .= '<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="' . esc_url($order_url) . '" aria-label="' . esc_attr(sprintf('%s %s', $a['buttonLabel'], $plan['title'])) . '">' . esc_html($a['buttonLabel']) . '</a></div>';
         } else {
             $html .= '<div class="wp-block-button is-disabled"><span class="wp-block-button__link wp-element-button" aria-disabled="true">' . esc_html($in_stock ? __('Unavailable', 'plansync-for-whmcs') : __('Out of Stock', 'plansync-for-whmcs')) . '</span></div>';
         }
@@ -231,6 +232,52 @@ final class Renderer
 
         $html .= '</div></article>';
         return $html;
+    }
+
+    /**
+     * Where a plan's order button points. Defaults to the WHMCS order link;
+     * while "Order buttons" is ticked, the plansync_order_url filter can send
+     * it elsewhere, for example to an order form on this site.
+     */
+    public static function order_url(array $plan): string
+    {
+        $settings = Plans::settings();
+        $url = (string) $plan['order_url'];
+        if (!empty($settings['site_orders'])) {
+            $url = (string) apply_filters('plansync_order_url', $url, $plan);
+        }
+        return self::with_affiliate($url, $settings);
+    }
+
+    /**
+     * Adds the ARPFerral affiliate code to links that go to the WHMCS site, or
+     * to an order page on this site such as CartBridge, so the affiliate is
+     * credited for the order. Links to other sites are left alone.
+     */
+    public static function with_affiliate(string $url, ?array $settings = null): string
+    {
+        $settings = $settings ?? Plans::settings();
+        $code = (string) $settings['affiliate_code'];
+        if ('' === $url || empty($settings['affiliate']) || '' === $code) {
+            return $url;
+        }
+        $host = strtolower((string) wp_parse_url($url, PHP_URL_HOST));
+        $ours = array(
+            strtolower((string) wp_parse_url((string) $settings['whmcs_url'], PHP_URL_HOST)),
+            strtolower((string) wp_parse_url(home_url('/'), PHP_URL_HOST)),
+        );
+        if ('' === $host || !in_array($host, $ours, true)) {
+            return $url;
+        }
+        if (preg_match('/[?&]ref=/', $url)) {
+            return $url;
+        }
+        $fragment = '';
+        if (false !== ($hash = strpos($url, '#'))) {
+            $fragment = substr($url, $hash);
+            $url = substr($url, 0, $hash);
+        }
+        return $url . (false === strpos($url, '?') ? '?' : '&') . 'ref=' . rawurlencode($code) . $fragment;
     }
 
     private static function schema(array $plans): string
@@ -249,8 +296,9 @@ final class Renderer
                 'priceCurrency' => $currency,
                 'availability'  => !empty($plan['in_stock']) ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
             );
-            if ('' !== (string) $plan['order_url']) {
-                $offer['url'] = $plan['order_url'];
+            $order_url = self::order_url($plan);
+            if ('' !== $order_url) {
+                $offer['url'] = $order_url;
             }
             $units = array('monthly' => 'MON', 'annually' => 'ANN');
             if (isset($units[$plan['cycle']])) {
