@@ -9,16 +9,12 @@
     --awp-brand: #0e7490;
     --awp-brand-hover: #155e75;
     --awp-tab-active-text: #ffffff;
-    --awp-out-bg: #fef2f2;
-    --awp-out-text: #b91c1c;
     --awp-low-bg: #fffbeb;
     --awp-low-text: #92400e;
     margin: 1.5rem 0;
 }
 
 [data-theme="dark"] .plansync {
-    --awp-out-bg: rgba(248, 113, 113, 0.12);
-    --awp-out-text: #fca5a5;
     --awp-low-bg: rgba(251, 191, 36, 0.12);
     --awp-low-text: #fcd34d;
 }
@@ -101,9 +97,10 @@
     text-align: center;
 }
 
-.plansync__grid {
+.plansync .plansync__grid:not(#plansync-x) {
     display: flex;
     flex-wrap: wrap;
+    align-items: stretch;
     justify-content: center;
     gap: 1.25rem;
 }
@@ -125,9 +122,10 @@
     }
 }
 
-.plansync .plansync-plan {
+.plansync .plansync-plan:not(#plansync-x) {
     position: relative;
     display: flex;
+    height: auto; /* themes set height: 100% on cards, which stops flex stretch */
     margin: 0;
     padding: 1.5rem;
     border: 1px solid var(--awp-border);
@@ -222,12 +220,6 @@
     border-radius: 6px;
     font-size: 0.85rem;
     font-weight: 700;
-}
-
-.plansync .plansync-plan__stock.is-out:not(#plansync-x) {
-    background: var(--awp-out-bg);
-    color: var(--awp-out-text) !important;
-    -webkit-text-fill-color: var(--awp-out-text) !important;
 }
 
 .plansync .plansync-plan__stock.is-low:not(#plansync-x) {

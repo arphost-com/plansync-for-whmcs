@@ -201,6 +201,7 @@ check('vps' === Plans::sanitize_group('https://billing.example.com/store/vps') &
 $out = Renderer::render(array('group' => 'cloud-servers'));
 check(3 === substr_count($out, '<article '), 'renders the visible plans');
 check(1 === substr_count($out, 'is-out-of-stock') && 1 === substr_count($out, 'aria-disabled="true"'), 'out of stock card cannot be ordered');
+check(false === strpos($out, 'plansync-plan__stock is-out') && 1 === substr_count($out, '>Out of Stock<'), 'out of stock is said once, on the button');
 check(false !== strpos($out, 'Pro &lt;b&gt;') && false === strpos($out, 'Pro <b>'), 'SEO title is escaped');
 check(false !== strpos($out, 'id="pro"') && false !== strpos($out, 'Popular') && false !== strpos($out, 'is-featured'), 'anchor, badge and featured flag');
 check(false === strpos($out, 'role="tab"') && false === strpos($out, 'plansync__category'), 'one category: no tabs and no category heading');

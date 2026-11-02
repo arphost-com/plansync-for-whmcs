@@ -210,9 +210,7 @@ final class Renderer
             $html .= '</ul>';
         }
 
-        if (!$in_stock) {
-            $html .= '<p class="plansync-plan__stock is-out">' . esc_html__('Out of stock', 'plansync-for-whmcs') . '</p>';
-        } elseif (null !== $plan['stock']) {
+        if ($in_stock && null !== $plan['stock']) {
             /* translators: %d: units available */
             $html .= '<p class="plansync-plan__stock is-low">' . esc_html(sprintf(_n('%d available', '%d available', (int) $plan['stock'], 'plansync-for-whmcs'), (int) $plan['stock'])) . '</p>';
         }
