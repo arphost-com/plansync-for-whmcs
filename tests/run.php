@@ -186,7 +186,7 @@ check(array('Intel Local NVMe', 'AMD Local NVMe') === array_values(array_unique(
 
 $cache['groups']['vps']['fetched_at'] = time() - 49 * HOUR_IN_SECONDS;
 update_option(Plans::CACHE_OPTION, $cache);
-check(array() === Plans::plans_for_group('vps') && 4 === count(Plans::plans_for_group('vps', false, true)), 'stale cache is hidden from visitors but kept for the admin');
+check(4 === count(Plans::plans_for_group('vps')), 'an old cache is still shown to visitors');
 check(Plans::group_status('vps')['stale'], 'group status reports stale');
 $cache['groups']['vps']['fetched_at'] = time();
 update_option(Plans::CACHE_OPTION, $cache);
@@ -272,6 +272,13 @@ check('$5.00' === Renderer::lowest_price('cloud-servers'), 'lowest in-stock pric
 check('' === Renderer::render(array('group' => 'missing')), 'unknown group renders nothing for visitors');
 $GLOBALS['wp_can_edit'] = true;
 check(false !== strpos(Renderer::render(array('group' => 'missing')), 'plansync-notice'), 'editors get a notice instead');
+$settings = get_option(Plans::SETTINGS_OPTION);
+$saved_excluded = $settings['groups']['vps']['excluded'];
+$settings['groups']['vps']['excluded'] = array('100', '101', '102', '103');
+update_option(Plans::SETTINGS_OPTION, $settings);
+check(false !== strpos(Renderer::render(array('group' => 'vps')), 'Every plan in this group is turned off') && 4 === Plans::group_status('vps')['excluded'], 'editors are told when every plan is turned off');
+$settings['groups']['vps']['excluded'] = $saved_excluded;
+update_option(Plans::SETTINGS_OPTION, $settings);
 $GLOBALS['wp_can_edit'] = false;
 
 $eur = Store_Parser::parse_products(fixture('localized_eur'), $base, 'alojamiento');

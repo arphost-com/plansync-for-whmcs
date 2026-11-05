@@ -16,7 +16,7 @@ Most WHMCS pricing widgets load plans in the browser with JavaScript, so search 
 - Out of stock plans are marked, cannot be ordered, and carry `OutOfStock` structured data.
 - Per-plan exclusion, SEO title, description, category (tab), badge, anchor, order and featured flag.
 - Category tabs that work without JavaScript and follow the WAI-ARIA tabs pattern.
-- Cached and refreshed on a schedule, and page caches are cleared when prices or stock change; the last good copy is kept when WHMCS is down, and hidden once it is older than the maximum age you set.
+- Cached and refreshed on a schedule, and page caches are cleared when prices or stock change; the last good copy is always shown when WHMCS is down, and the settings screen warns you when it gets old. Plans refresh after a page view when they are due, so they stay current even without WP-Cron.
 - Gutenberg block, shortcodes and WP-CLI.
 
 ## Order buttons and site order pages
@@ -39,7 +39,7 @@ ARPFerral is the ARPHost affiliate program. Affiliates can use PlanSync on their
 
 ## Install
 
-1. Download the latest release zip and upload it under Plugins → Add New → Upload, or copy the `plansync-for-whmcs` folder to `wp-content/plugins/`.
+1. Download `plansync-for-whmcs-<version>.zip` from the [latest release](https://github.com/arphost-com/plansync-for-whmcs/releases/latest) and upload it under Plugins → Add New → Upload Plugin. If an older version is installed, WordPress offers to replace it and keeps your settings. You can also copy the `plansync-for-whmcs` folder to `wp-content/plugins/`.
 2. Activate **PlanSync for WHMCS**.
 3. Open **PlanSync** in the admin menu, enter your WHMCS URL and add a product group.
 4. Add the **PlanSync** block to a page.

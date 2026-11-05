@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.2
+
+- The last good copy of the plans is always shown, however old it is, so visitors never see an error when WHMCS cannot be reached. The old maximum age setting is now only a warning on the settings screen. Plans also refresh after a page view once they are due, so they stay current on sites where WP-Cron does not run. Editors now get a clear note when every plan in a group is turned off, and the settings forms no longer let the browser restore old checkbox states, which could save plans as hidden by mistake.
+
 ## 1.3.1
 
 - Out of stock plans say so once, on the greyed out button, instead of also showing a badge above it. Plan cards in the same row are the same height, even when the theme gives cards a fixed height, so an out of stock card no longer stands taller than its neighbours.

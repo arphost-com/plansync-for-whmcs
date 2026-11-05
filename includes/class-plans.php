@@ -30,6 +30,9 @@ final class Plans
     /** @var array{host: string, port: int, ip: string}|null Connection pin for the request in flight. */
     private static $pin = null;
 
+    /** @var array<string, bool> Groups queued for a refresh at the end of this request. */
+    private static $queued = array();
+
     public static function defaults(): array
     {
         return array(
@@ -369,13 +372,17 @@ final class Plans
         if (!isset($cache['groups'][$group])) {
             if (isset($settings['groups'][$group])) {
                 self::schedule_group_sync($group);
+                self::refresh_after_response($group);
             }
             return array();
         }
 
+        // The last good copy is always shown, however old it is. When it is
+        // due for a refresh, fetch a new one after the page has been sent, so
+        // plans stay current even when WP-Cron does not run.
         $entry = $cache['groups'][$group];
-        if (!$include_stale && self::is_stale($entry, $settings)) {
-            return array();
+        if (isset($settings['groups'][$group]) && self::is_due($entry, $settings)) {
+            self::refresh_after_response($group);
         }
 
         $plans = isset($entry['plans']) && is_array($entry['plans']) ? $entry['plans'] : array();
@@ -428,6 +435,46 @@ final class Plans
         return $out;
     }
 
+    /**
+     * True when a group has not been refreshed, or tried, for one refresh interval.
+     */
+    public static function is_due(array $entry, ?array $settings = null): bool
+    {
+        $settings = $settings ?: self::settings();
+        $last = max((int) ($entry['fetched_at'] ?? 0), (int) ($entry['error_at'] ?? 0));
+        return (time() - $last) > (int) $settings['sync_minutes'] * MINUTE_IN_SECONDS;
+    }
+
+    /**
+     * Refresh a group at the end of this request, after the page has been sent
+     * to the visitor where the server allows it. Errors keep the last good copy.
+     */
+    public static function refresh_after_response(string $group): void
+    {
+        if (isset(self::$queued[$group]) || !function_exists('add_action') || (defined('PLANSYNC_TESTING') && PLANSYNC_TESTING)) {
+            return;
+        }
+        if (get_transient(self::LOCK_TRANSIENT)) {
+            return;
+        }
+        self::$queued[$group] = true;
+        add_action('shutdown', static function () use ($group) {
+            if (function_exists('fastcgi_finish_request')) {
+                fastcgi_finish_request();
+            } elseif (function_exists('litespeed_finish_request')) {
+                litespeed_finish_request();
+            }
+            if (function_exists('ignore_user_abort')) {
+                ignore_user_abort(true);
+            }
+            self::sync_group($group);
+        }, 1000);
+    }
+
+    /**
+     * True when the last good copy is older than the warning age. Plans are
+     * still shown; this only drives a warning on the settings screen.
+     */
     public static function is_stale(array $entry, ?array $settings = null): bool
     {
         $settings = $settings ?: self::settings();
@@ -448,6 +495,12 @@ final class Plans
             })),
             'fetched_at'   => isset($entry['fetched_at']) ? (int) $entry['fetched_at'] : 0,
             'stale'        => !empty($entry) && self::is_stale($entry),
+            'excluded'     => count(array_intersect(
+                array_map('strval', (array) (self::settings()['groups'][$group]['excluded'] ?? array())),
+                array_map(static function ($p) {
+                    return isset($p['key']) ? (string) $p['key'] : (string) ($p['pid'] ?? '');
+                }, $plans)
+            )),
             'url'          => isset($entry['url']) ? (string) $entry['url'] : '',
             'error'        => isset($entry['error']) ? (string) $entry['error'] : '',
             'error_at'     => isset($entry['error_at']) ? (int) $entry['error_at'] : 0,

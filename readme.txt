@@ -4,7 +4,7 @@ Tags: whmcs, pricing table, hosting, plans, seo
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 8.0
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -44,9 +44,12 @@ Groups hidden from the store menu are not listed. Type the slug from the group l
 
 = What happens if WHMCS is down? =
 
-The last good copy is kept and shown. If WHMCS cannot be reached for longer than the maximum age you set, the plans are hidden so visitors never see stale prices.
+The last good copy is kept and shown, however long WHMCS is down. The settings screen warns you when the copy is older than the age you set, and PlanSync keeps trying to refresh it.
 
 == Changelog ==
+
+= 1.3.2 =
+* The last good copy of the plans is always shown, however old it is, so visitors never see an error when WHMCS cannot be reached. The old maximum age setting is now only a warning on the settings screen. Plans also refresh after a page view once they are due, so they stay current on sites where WP-Cron does not run. Editors now get a clear note when every plan in a group is turned off, and the settings forms no longer let the browser restore old checkbox states, which could save plans as hidden by mistake.
 
 = 1.3.1 =
 * Out of stock plans say so once, on the greyed out button, instead of also showing a badge above it. Plan cards in the same row are the same height, even when the theme gives cards a fixed height.

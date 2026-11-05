@@ -201,7 +201,9 @@ final class Admin
 
     private static function form_open(string $task, array $hidden = array()): void
     {
-        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
+        // autocomplete="off" stops the browser restoring old checkbox states
+        // after Back or a reload, which could save plans as hidden by mistake.
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" autocomplete="off">';
         echo '<input type="hidden" name="action" value="' . esc_attr(self::ACTION) . '">';
         echo '<input type="hidden" name="task" value="' . esc_attr($task) . '">';
         foreach ($hidden as $name => $value) {
@@ -279,9 +281,9 @@ final class Admin
                         <td><input id="wp-min" name="sync_minutes" type="number" min="5" max="1440" value="<?php echo (int) $settings['sync_minutes']; ?>"> <?php esc_html_e('minutes', 'plansync-for-whmcs'); ?></td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="wp-age"><?php esc_html_e('Hide plans older than', 'plansync-for-whmcs'); ?></label></th>
+                        <th scope="row"><label for="wp-age"><?php esc_html_e('Warn when plans are older than', 'plansync-for-whmcs'); ?></label></th>
                         <td><input id="wp-age" name="max_age_hours" type="number" min="0" max="8760" value="<?php echo (int) $settings['max_age_hours']; ?>"> <?php esc_html_e('hours', 'plansync-for-whmcs'); ?>
-                            <p class="description"><?php esc_html_e('If WHMCS cannot be reached for this long, plans are hidden so visitors never see stale prices or stock. 0 keeps the last copy forever.', 'plansync-for-whmcs'); ?></p></td>
+                            <p class="description"><?php esc_html_e('Plans are cached and the last good copy is always shown, even when WHMCS cannot be reached. This screen warns you when the copy is older than this. 0 turns the warning off.', 'plansync-for-whmcs'); ?></p></td>
                     </tr>
                     <tr>
                         <th scope="row"><label for="wp-contact"><?php esc_html_e('Out of stock link', 'plansync-for-whmcs'); ?></label></th>
@@ -391,7 +393,10 @@ final class Admin
                             )); ?>
                         <?php endif; ?>
                         <?php if ($status['stale']) : ?>
-                            <br><strong class="plansync-admin__error"><?php esc_html_e('Plans are hidden on the site because the last good refresh is older than the maximum age.', 'plansync-for-whmcs'); ?></strong>
+                            <br><strong class="plansync-admin__error"><?php esc_html_e('The last good refresh is older than the warning age. The site still shows this copy and keeps trying to refresh it.', 'plansync-for-whmcs'); ?></strong>
+                        <?php endif; ?>
+                        <?php if ($status['count'] > 0 && $status['excluded'] >= $status['count']) : ?>
+                            <br><strong class="plansync-admin__error"><?php esc_html_e('Every plan in this group is turned off, so nothing shows on the site. Tick "Show" for the plans you want and save the group.', 'plansync-for-whmcs'); ?></strong>
                         <?php endif; ?>
                         <?php if ('' !== $status['error']) : ?>
                             <br><strong class="plansync-admin__error"><?php echo esc_html(__('Last refresh failed:', 'plansync-for-whmcs') . ' ' . $status['error']); ?></strong>

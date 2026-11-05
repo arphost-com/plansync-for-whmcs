@@ -82,8 +82,11 @@ final class Renderer
 
         if (empty($plans)) {
             $status = Plans::group_status($group);
-            if ($status['stale']) {
-                return self::notice(__('These plans are hidden because the last successful refresh from WHMCS is older than the maximum age in the settings.', 'plansync-for-whmcs'));
+            if ($status['count'] > 0 && $status['excluded'] >= $status['count']) {
+                return self::notice(__('Every plan in this group is turned off. Tick "Show" for the plans you want on the PlanSync settings screen.', 'plansync-for-whmcs'));
+            }
+            if ($status['count'] > 0) {
+                return self::notice(__('No plans match this block\'s category or out of stock settings.', 'plansync-for-whmcs'));
             }
             return self::notice(__('No plans to show for this group yet. They appear after the first refresh from WHMCS.', 'plansync-for-whmcs'));
         }
